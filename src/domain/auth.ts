@@ -13,3 +13,13 @@ export type DemoAccount = {
   password: string;
   displayName: string;
 };
+
+export type RegistrationInput = {
+  fullName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  termsAccepted: boolean;
+};
+
+export type RegistrationResult = { kind: 'success' } | { kind: 'unavailable' };

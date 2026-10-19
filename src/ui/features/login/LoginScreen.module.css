@@ -26,6 +26,12 @@
   }
 }
 
+@media (max-width: 959px) {
+  .hideBrandOnMobile > header {
+    display: none;
+  }
+}
+
 @media (min-width: 960px) {
   .screen {
     display: grid;

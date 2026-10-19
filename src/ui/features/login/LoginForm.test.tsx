@@ -262,3 +262,58 @@ describe('LoginForm · seguridad (FR-012)', () => {
     consoleSpies.forEach((spy) => spy.mockRestore());
   });
 });
+
+describe('LoginForm · Integración con Registro (US1-1, US3-2, FR-009, FR-010)', () => {
+  it('US3-2: cuando recibe onNavigateToRegister, activar "Regístrate" invoca onNavigateToRegister sin mostrar aviso', async () => {
+    const user = userEvent.setup();
+    const stub = createAuthStub();
+    const onNavigateToRegister = vi.fn();
+
+    render(
+      <LoginForm authenticate={stub.authenticate} onNavigateToRegister={onNavigateToRegister} />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Regístrate' }));
+    expect(onNavigateToRegister).toHaveBeenCalledOnce();
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+
+  it('US1-1: cuando recibe successMessage muestra un Alert con role="status" y ese texto exacto', () => {
+    const stub = createAuthStub();
+    render(
+      <LoginForm
+        authenticate={stub.authenticate}
+        successMessage="¡Cuenta creada exitosamente! Inicia sesión para continuar."
+      />,
+    );
+
+    expect(screen.getByRole('status')).toHaveTextContent(
+      '¡Cuenta creada exitosamente! Inicia sesión para continuar.',
+    );
+  });
+
+  it('invoca onClearSuccessMessage al editar un campo, enviar el formulario o pulsar "Regístrate"', async () => {
+    const user = userEvent.setup();
+    const stub = createAuthStub();
+    const onClearSuccessMessage = vi.fn();
+    const onNavigateToRegister = vi.fn();
+
+    render(
+      <LoginForm
+        authenticate={stub.authenticate}
+        successMessage="¡Cuenta creada exitosamente! Inicia sesión para continuar."
+        onClearSuccessMessage={onClearSuccessMessage}
+        onNavigateToRegister={onNavigateToRegister}
+      />,
+    );
+
+    await user.type(screen.getByLabelText('Correo electrónico'), 'a');
+    expect(onClearSuccessMessage).toHaveBeenCalledTimes(1);
+
+    await user.click(screen.getByRole('button', { name: 'Iniciar sesión' }));
+    expect(onClearSuccessMessage).toHaveBeenCalledTimes(2);
+
+    await user.click(screen.getByRole('button', { name: 'Regístrate' }));
+    expect(onClearSuccessMessage).toHaveBeenCalledTimes(3);
+  });
+});

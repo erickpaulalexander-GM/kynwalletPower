@@ -92,6 +92,21 @@
     background: var(--card-chip);
   }
 
+  .chipRegister {
+    position: relative;
+  }
+
+  .chipRegister::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 1.5px;
+    transform: translateY(-50%);
+    background: rgba(239, 82, 38, 0.45);
+  }
+
   .cardNumber {
     font-size: 20px;
     font-weight: 500;

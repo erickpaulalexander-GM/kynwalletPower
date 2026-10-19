@@ -1,13 +1,19 @@
 import { useState } from 'react';
 import eyeIcon from '@/ui/assets/eye.svg';
+import eyeRegisterIcon from '@/ui/assets/eye-register.svg';
 import { TextField, type TextFieldProps } from '../TextField/TextField';
 import styles from './PasswordField.module.css';
 
-export type PasswordFieldProps = Omit<TextFieldProps, 'type' | 'endAdornment'>;
+export type PasswordFieldVariant = 'login' | 'register';
+
+export type PasswordFieldProps = Omit<TextFieldProps, 'type' | 'endAdornment'> & {
+  variant?: PasswordFieldVariant;
+};
 
 /** Campo de contraseña con control accesible de visibilidad (FR-013). */
-export function PasswordField(props: PasswordFieldProps) {
+export function PasswordField({ variant = 'login', ...props }: PasswordFieldProps) {
   const [visible, setVisible] = useState(false);
+  const iconSrc = variant === 'register' ? eyeRegisterIcon : eyeIcon;
   return (
     <TextField
       {...props}
@@ -20,7 +26,7 @@ export function PasswordField(props: PasswordFieldProps) {
           aria-label={visible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
           onClick={() => setVisible((current) => !current)}
         >
-          <img src={eyeIcon} alt="" width={20} height={12} />
+          <img src={iconSrc} alt="" width={20} height={12} />
         </button>
       }
     />

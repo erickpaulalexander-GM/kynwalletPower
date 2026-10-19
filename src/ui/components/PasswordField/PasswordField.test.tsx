@@ -2,6 +2,8 @@ import { createRef } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expectNoA11yViolations } from '@/test/a11y';
+import eyeIcon from '@/ui/assets/eye.svg';
+import eyeRegisterIcon from '@/ui/assets/eye-register.svg';
 import { PasswordField } from './PasswordField';
 
 function renderField(props: Partial<Parameters<typeof PasswordField>[0]> = {}) {
@@ -18,11 +20,17 @@ describe('PasswordField', () => {
     expect(input).toHaveAttribute('type', 'password');
     expect(toggle()).toHaveAccessibleName('Mostrar contraseña');
     expect(toggle()).toHaveAttribute('aria-pressed', 'false');
+    expect(toggle().querySelector('img')).toHaveAttribute('src', eyeIcon);
 
     await userEvent.click(toggle());
     expect(input).toHaveAttribute('type', 'text');
     expect(toggle()).toHaveAccessibleName('Ocultar contraseña');
     expect(toggle()).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('usa el icono específico de registro cuando variant="register"', () => {
+    const { toggle } = renderField({ variant: 'register' });
+    expect(toggle().querySelector('img')).toHaveAttribute('src', eyeRegisterIcon);
   });
 
   it('US4-2: se vuelve a ocultar', async () => {

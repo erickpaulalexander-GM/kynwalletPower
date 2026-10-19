@@ -14,9 +14,17 @@ import styles from './LoginForm.module.css';
 
 type LoginFormProps = {
   authenticate: Authenticate;
+  onNavigateToRegister?: () => void;
+  successMessage?: string | null;
+  onClearSuccessMessage?: () => void;
 };
 
-export function LoginForm({ authenticate }: LoginFormProps) {
+export function LoginForm({
+  authenticate,
+  onNavigateToRegister,
+  successMessage,
+  onClearSuccessMessage,
+}: LoginFormProps) {
   const { state, change, blur, submit, logout, toggleRemember, showNotice } =
     useLoginForm(authenticate);
   const emailRef = useRef<HTMLInputElement>(null);
@@ -31,8 +39,14 @@ export function LoginForm({ authenticate }: LoginFormProps) {
     return <WelcomeView name={state.welcomeName} onLogout={logout} />;
   }
 
+  const handleFieldChange = (field: 'email' | 'password', value: string) => {
+    onClearSuccessMessage?.();
+    change(field, value);
+  };
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    onClearSuccessMessage?.();
     const errors = submit();
     // US3-1: el foco va al primer campo con error.
     if (errors.email) emailRef.current?.focus();
@@ -42,12 +56,23 @@ export function LoginForm({ authenticate }: LoginFormProps) {
   // FR-016: elementos del diseño fuera del alcance de la demostración.
   const notAvailable = () => showNotice(MESSAGES.FEATURE_UNAVAILABLE);
 
+  const handleRegisterClick = () => {
+    onClearSuccessMessage?.();
+    if (onNavigateToRegister) {
+      onNavigateToRegister();
+    } else {
+      notAvailable();
+    }
+  };
+
   return (
     <form className={styles.form} noValidate onSubmit={handleSubmit}>
       <div className={styles.heading}>
         <h1 className={styles.title}>Bienvenido de nuevo</h1>
         <p className={styles.subtitle}>Ingresa a tu cuenta para continuar</p>
       </div>
+
+      {successMessage && <Alert tone="info">{successMessage}</Alert>}
 
       <TextField
         label="Correo electrónico"
@@ -58,7 +83,7 @@ export function LoginForm({ authenticate }: LoginFormProps) {
         placeholder="tucorreo@ejemplo.com"
         value={state.values.email}
         error={state.fieldErrors.email}
-        onChange={(event) => change('email', event.target.value)}
+        onChange={(event) => handleFieldChange('email', event.target.value)}
         onBlur={() => blur('email')}
       />
 
@@ -70,7 +95,7 @@ export function LoginForm({ authenticate }: LoginFormProps) {
         placeholder="••••••••"
         value={state.values.password}
         error={state.fieldErrors.password}
-        onChange={(event) => change('password', event.target.value)}
+        onChange={(event) => handleFieldChange('password', event.target.value)}
         onBlur={() => blur('password')}
       />
 
@@ -108,7 +133,7 @@ export function LoginForm({ authenticate }: LoginFormProps) {
 
       <p className={styles.footer}>
         ¿No tienes cuenta?
-        <Button variant="link" onClick={notAvailable}>
+        <Button variant="link" onClick={handleRegisterClick}>
           Regístrate
         </Button>
       </p>
